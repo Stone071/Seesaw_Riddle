@@ -167,7 +167,7 @@ unsigned int check_input_buf(void)
 }
 
 // Definitely need a function to look through seesaw and detect who is there
-void get_players_on_seesaw(void)
+void id_players_on_seesaw(void)
 {
   // just look through the screen and see who is there.
   for (int i=0; i<NUM_CHARS_LINE; i++)
@@ -176,7 +176,7 @@ void get_players_on_seesaw(void)
     if (i == 12) continue;
     for (int j=0; j<NUM_ISLANDERS; j++)
     {
-      if (aucScreen[0] == asIslanders[j].name)
+      if (aucScreen[0][i] == asIslanders[j].name)
       {
         asIslanders[j].fOnSeesaw = true;
         asIslanders[j].uiSide = (i<12) ? L_HALF : R_HALF;
@@ -239,6 +239,10 @@ bool main(void)
         // Look through the screen and move the symbol.
         // Go get the index of the character and the place on the seesaw.
         // then memmove one to the other.
+	for (int i=0; i<NUM_CHARS_LINE; i++)
+	{
+	  
+	}
       }
     }
   }
