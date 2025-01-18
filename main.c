@@ -224,11 +224,19 @@ unsigned char get_command(void)
     {
       if (asIslanders[i].weight != DEFAULT_WEIGHT)
       {
-        char acMessage[20];
+        char acNewline[] = "\n\0";
+        char acSeparator[] = ": ";
+        char acMessage[20] = {0};
         char cName = asIslanders[i].name;
-        unsigned int uiWeight = asIslanders[i].weight;
+        char acWeight[4];
+        // sprintf convert weight to a string
+        int iBytesWritten = sprintf(acWeight, "%i", asIslanders[i].weight);
+        // Put islander's name in message first, followed by weight and formatting.
         memcpy(acMessage, &cName, sizeof(cName));
-        memcpy(acMessage + 2*sizeof(cName), &uiWeight, sizeof(uiWeight));
+        strcat(acMessage, acSeparator);
+        strcat(acMessage, acWeight);
+        strcat(acMessage, acNewline);
+        // Copy to screen status buffer
         memcpy(aucOnScreenStatus, acMessage, sizeof(acMessage));
         break;
       }
