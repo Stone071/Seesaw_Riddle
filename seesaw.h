@@ -1,7 +1,6 @@
 #ifndef SEESAW_H
 #define SEESAW_H
 
-// INCLUDES
 #include <stdbool.h>
 
 // SIMULATION RELATED
@@ -11,11 +10,7 @@
 #define WEIGHT_VARIANCE    5
 
 // INPUT RELATED
-#define COMMAND_RESET      0
-#define COMMAND_TEST       1
-#define COMMAND_PLACE      2
-#define COMMAND_INCOMPLETE 3
-#define COMMAND_QUIT       4
+#define INPUT_SIZE         3 // is 3 because it includes the newline
 
 // SEESAW COMPUTE
 #define L_HALF             0
@@ -26,7 +21,6 @@
 typedef struct{
   unsigned char name;
   int weight;
-  unsigned int uiSide;
   bool fOnSeesaw;
 }sIslander;
 

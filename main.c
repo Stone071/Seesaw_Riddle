@@ -12,14 +12,17 @@
 #include <stdbool.h>
 #include <time.h>
 #include <stdlib.h>
+#include <string.h>
 #include "screen.h"
 #include "seesaw.h"
 
 // GLOBAlS
 sIslander asIslanders[NUM_ISLANDERS] = {0};
 sIslander* apsSeesaw[NUM_ISLANDERS] = {NULL};
-unsigned int uiInputBuf[2] = {0xFF}; //0xFF is an invalid ASCII char
+char acInputBuf[INPUT_SIZE] = {0xFF}; //0xFF is an invalid ASCII char
 unsigned int uiCommand[2] = {0xFF};
+bool fGameLoop = true;
+bool fScreenRefresh = false;
 
 // HELPER FUNCTIONS
 unsigned int get_random(unsigned int uiMaxNumber)
@@ -55,96 +58,146 @@ void populate_island(void)
         uiWeight += uiVariance;
       }
     }
-    sIslander temp = {0x41+i, uiWeight, NONE_HALF, false};
+    sIslander temp = {0x41+i, uiWeight, false};
     asIslanders[i] = temp;
   }
 }
 
-
-
-// Input handling will be split into placing chars into buffer
-// and then checking the buffer to see if a complete command is
-// present 
-unsigned char get_input(void)
+sIslander* player_name_lookup(char cName)
 {
-  int ucInput = getchar();
-  // Special commands will occupy position 0 in the buffer.
-  if (ucInput == 0x20)
+  sIslander* psPlayer = NULL;
+  // Find the player with the given name
+  for (int i=0; i<NUM_ISLANDERS; i++)
   {
-    uiInputBuf[0] = ucInput;
+    if (asIslanders[i].name == cName)
+    {
+      psPlayer = &asIslanders[i];
+      break;
+    }
   }
-  // grab seesaw position and call this function again.
-  else if ((ucInput >= 0x30 && ucInput <= 0x39)
-          || ucInput == 0x21 || ucInput == 0x40)
+  return psPlayer;
+}
+
+void place_player(void)
+{
+    // Translate the char position into the seesaw index
+  char cName = acInputBuf[0];
+  char cPos = acInputBuf[1];
+  unsigned int uiSeesawIndex = symbol_pos_to_seesaw_index(cPos);
+  sIslander* psPlayer = player_name_lookup(cName);
+
+  if (uiSeesawIndex != 0xFF)
   {
-    uiInputBuf[1] = ucInput;
+    // Put the player on the seesaw!
+    apsSeesaw[uiSeesawIndex] = psPlayer;
+    psPlayer->fOnSeesaw = true;
+    draw_player_on_seesaw(psPlayer, uiSeesawIndex);
   }
-  // grab islander and call this function again.
-  else if (ucInput >= 0x41 && ucInput <= 0x4C)
+  else
   {
-    uiInputBuf[0] = ucInput;
-  }
-  // reset positions
-  else if (ucInput == 0x52)
-  {
-    uiInputBuf[0] = ucInput;
-  }
-  else if (ucInput == 0x51)
-  {
-    uiInputBuf[0] = ucInput;
+    //printf("Error determining seesaw position\n");
+    reset_status_msg();
+    char cNewStatus[] = "Error determining seesaw position\n";
+    memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+    fScreenRefresh = true;
   }
 }
 
-unsigned int check_input_buf(void)
-{
-  unsigned int uiReturn = COMMAND_INCOMPLETE;
-  unsigned int uiBuf0 = uiInputBuf[0];
-  unsigned int uiBuf1 = uiInputBuf[1];
-  
-  // Special commands will occupy position 0 in the buffer.
-  if (uiBuf0 == 0x20)
-  {
-    uiReturn = COMMAND_TEST;
-  }
-  // grab seesaw position and call this function again.
-  else if (((uiBuf1 >= 0x30 && uiBuf1 <= 0x39)
-          || uiBuf1 == 0x21 || uiBuf1 == 0x40)
-          && (uiBuf0 >= 0x41 && uiBuf0 <= 0x4C))
-  {
-    uiReturn = COMMAND_PLACE;
-    // Move the placement args into command buf
-    uiCommand[0] = uiBuf0;
-    uiCommand[1] = uiBuf1;
-  }
-  // reset positions
-  else if (uiBuf0 == 0x52)
-  {
-    uiReturn = COMMAND_RESET;
-  }
-  else if (uiBuf0 == 0x51)
-  {
-    uiReturn = COMMAND_QUIT;
-  }
-
-  // if we have accepted a command, clear the input buffer.
-  if (uiReturn != COMMAND_INCOMPLETE)
-  {
-    uiInputBuf[0] = 0xFF;
-    uiInputBuf[1] = 0xFF;
-  }
-  return uiReturn;
-}
-
-
-
-void reset_player_positions(void)
+void reset_seesaw(void)
 {
   for (int i=0; i<NUM_ISLANDERS; i++)
   {
-    asIslanders[i].uiSide = NONE_HALF;
+    apsSeesaw[i] = NULL;
     asIslanders[i].fOnSeesaw = false;
   }
 }
+
+// Function retrieves 3 chars from stdin, and executes commands if input is valid.
+unsigned char get_input(void)
+{
+  sIslander* psPlayer;
+  unsigned int uiSeesawIndex;
+
+  memset(acInputBuf, 0, INPUT_SIZE);
+  // must use fgets so we can get more than one character at a time
+  char* cRet = fgets(acInputBuf, INPUT_SIZE, stdin);
+
+  if (acInputBuf[0] == 'Q') // QUIT
+  {
+    fGameLoop = false;
+  }
+  else if (acInputBuf[0] == 'T') // TEST
+  {
+    // Have not written this yet.
+    fScreenRefresh = true;
+  }
+  else if (acInputBuf[0] == 'R') // RESET
+  {
+    // reset all postions and update screen
+    reset_seesaw();
+    initialize_screen();
+    fScreenRefresh = true;
+  }
+  else if (acInputBuf[0] == 'I')
+  {
+    reset_status_msg();
+    set_status_instructions();
+    fScreenRefresh = true;
+  }
+  else if (acInputBuf[0] >= 'A' && acInputBuf[0]<= 'L')
+  {
+    if (acInputBuf[1] == '1'
+      || acInputBuf[1] == '2'
+      || acInputBuf[1] == '3'
+      || acInputBuf[1] == '4'
+      || acInputBuf[1] == '5'
+      || acInputBuf[1] == '6'
+      || acInputBuf[1] == '7'
+      || acInputBuf[1] == '8'
+      || acInputBuf[1] == '9'
+      || acInputBuf[1] == '0'
+      || acInputBuf[1] == '!'
+      || acInputBuf[1] == '@')
+      {
+        // Check the position is not already filled and player is not
+        // already on seesaw
+        uiSeesawIndex = symbol_pos_to_seesaw_index(acInputBuf[1]);
+        psPlayer = player_name_lookup(acInputBuf[0]);
+        if (apsSeesaw[uiSeesawIndex] == NULL && uiSeesawIndex != 0xFF
+          && psPlayer != NULL && psPlayer->fOnSeesaw == false)
+        {
+          // MOVE THE PLAYER!
+          place_player();
+          fScreenRefresh = true;
+        }
+        else
+        {
+          //printf("Player is already on seesaw or position is already filled.\n");
+          reset_status_msg();
+          char cNewStatus[] = "Player is already on seesaw or position is already filled.\n";
+          memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+          fScreenRefresh = true;
+        }
+      }
+      else
+      {
+        //printf("Your command was not recognized.\n");
+        reset_status_msg();
+        char cNewStatus[] = "Your command was not recognized.\n";
+        memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+        fScreenRefresh = true;
+      }
+  }
+  else
+  {
+    //printf("Your command was not recognized.\n");
+    reset_status_msg();
+    char cNewStatus[] = "Your command was not recognized.\n";
+    memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+    fScreenRefresh = true;
+  }
+}
+
 
 bool main(void)
 {
@@ -162,63 +215,16 @@ bool main(void)
   print_screen();
 
   // The actual game loop!
-  while (true)
+  while (fGameLoop)
   {
-    unsigned int uiCommandGiven;
-    // Everything is keyboard driven
+    // Everything is keyboard driven, get the input, trigger changes, 
+    //then print screen.
     get_input();
-    uiCommandGiven = check_input_buf();
-    if (uiCommandGiven != COMMAND_INCOMPLETE)
+    if (fScreenRefresh == true)
     {
-      if (uiCommandGiven == COMMAND_QUIT)
-      {
-        break;
-      }
-      else if (uiCommandGiven == COMMAND_RESET)
-      {
-        reset_player_positions();
-        initialize_screen();
-        print_screen();
-      }
-      else if (uiCommandGiven == COMMAND_TEST)
-      {
-        // Not written yet
-      }
-      else if (uiCommandGiven == COMMAND_PLACE)
-      {
-        unsigned char ucSelName = (unsigned char)uiCommand[0];
-        char cPosition = (char)uiCommand[1];
-        // Look through the screen and move the symbol.
-        // Go get the index of the character and the place on the seesaw.
-        // then memmove one to the other.
-	for (int i=0; i<NUM_CHARS_LINE; i++)
-	{
-	  
-	}
-      }
+      print_screen();
+      fScreenRefresh = false;
     }
   }
   return true;
 }
-
-
-
-
-// // Definitely need a function to look through seesaw and detect who is there
-// void id_players_on_seesaw(void)
-// {
-//   // just look through the screen and see who is there.
-//   for (int i=0; i<NUM_CHARS_LINE; i++)
-//   {
-//     // For the exact middle position, don't check.
-//     if (i == 12) continue;
-//     for (int j=0; j<NUM_ISLANDERS; j++)
-//     {
-//       if (aucScreen[0][i] == asIslanders[j].name)
-//       {
-//         asIslanders[j].fOnSeesaw = true;
-//         asIslanders[j].uiSide = (i<12) ? L_HALF : R_HALF;
-//       } 
-//     }
-//   }
-// }
