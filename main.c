@@ -9,15 +9,15 @@
 //
 
 #include <stdio.h>
-#include "seesaw.h"
 #include <stdbool.h>
 #include <time.h>
 #include <stdlib.h>
-#include <string.h>
+#include "screen.h"
+#include "seesaw.h"
 
 // GLOBAlS
-sIslander asIslanders[NUM_ISLANDERS];
-unsigned char aucScreen[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {0};
+sIslander asIslanders[NUM_ISLANDERS] = {0};
+sIslander* apsSeesaw[NUM_ISLANDERS] = {NULL};
 unsigned int uiInputBuf[2] = {0xFF}; //0xFF is an invalid ASCII char
 unsigned int uiCommand[2] = {0xFF};
 
@@ -60,38 +60,7 @@ void populate_island(void)
   }
 }
 
-void initialize_screen(void)
-{
-  unsigned int j = 0;
-  // Copy each line of screen base into screen buffer
-  for (int i=0; i<NUM_SCREEN_LINES; i++)
-  {
-    strcpy(aucScreen[i], ucScreenBase[i]);
-  }
-  for (int i=0; i<NUM_CHARS_LINE; i++)
-  {
-    if (i % 2 == 0)
-    {
-      // Copy the names of the islanders into the bottom line
-      if (j < NUM_ISLANDERS)
-      {
-        memcpy((aucScreen[3] + (j*2)), &(asIslanders[j].name), sizeof(unsigned char));
-        j++;
-      } 
-    }
-  }
-}
 
-void print_screen(void)
-{
-  system("clear");
-  printf("%s\n",aucInstructions);
-  for (int i=0; i<NUM_SCREEN_LINES; i++)
-  {
-    printf("%s\n",aucScreen[i]);
-  }
-  printf("\nYOUR COMMAND: ");
-}
 
 // Input handling will be split into placing chars into buffer
 // and then checking the buffer to see if a complete command is
@@ -166,24 +135,7 @@ unsigned int check_input_buf(void)
   return uiReturn;
 }
 
-// Definitely need a function to look through seesaw and detect who is there
-void id_players_on_seesaw(void)
-{
-  // just look through the screen and see who is there.
-  for (int i=0; i<NUM_CHARS_LINE; i++)
-  {
-    // For the exact middle position, don't check.
-    if (i == 12) continue;
-    for (int j=0; j<NUM_ISLANDERS; j++)
-    {
-      if (aucScreen[0][i] == asIslanders[j].name)
-      {
-        asIslanders[j].fOnSeesaw = true;
-        asIslanders[j].uiSide = (i<12) ? L_HALF : R_HALF;
-      } 
-    }
-  }
-}
+
 
 void reset_player_positions(void)
 {
@@ -248,3 +200,25 @@ bool main(void)
   }
   return true;
 }
+
+
+
+
+// // Definitely need a function to look through seesaw and detect who is there
+// void id_players_on_seesaw(void)
+// {
+//   // just look through the screen and see who is there.
+//   for (int i=0; i<NUM_CHARS_LINE; i++)
+//   {
+//     // For the exact middle position, don't check.
+//     if (i == 12) continue;
+//     for (int j=0; j<NUM_ISLANDERS; j++)
+//     {
+//       if (aucScreen[0][i] == asIslanders[j].name)
+//       {
+//         asIslanders[j].fOnSeesaw = true;
+//         asIslanders[j].uiSide = (i<12) ? L_HALF : R_HALF;
+//       } 
+//     }
+//   }
+// }
