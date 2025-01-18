@@ -5,7 +5,7 @@
 #include "seesaw.h"
 
 // DEFINES
-#define NUM_SCREEN_LINES   4
+#define NUM_SCREEN_LINES   6
 #define NUM_CHARS_LINE    26
 
 // Must be extern to avoid being fully defined here and thus multiply defined.

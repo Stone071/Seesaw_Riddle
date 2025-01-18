@@ -13,7 +13,8 @@ const unsigned char aucInstructions[] =
 To put an islander on the seesaw, enter their name and the\n\
 position you would like them in, like 'A9'. Press R to reset\n\
 the seesaw. Enter 'T' when you want to let the seesaw drop.\n\
-Enter 'Q' when you want to quit. Enter 'I' to repeat instructions."};
+Enter 'Q' when you want to quit. Enter 'W' to find out who\n\
+the person of unequal weight is. Enter 'I' to repeat instructions.\n"};
 // The buffer which will hold status messages
 unsigned char aucOnScreenStatus[sizeof(aucInstructions)];
 // This is the empty base frame which is flashed to the screen
@@ -22,6 +23,8 @@ const char ucScreenBase[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {
   {"            ^            "},
   {"                         "},
   {"                         "},
+  {"                         "},
+  {"YOUR COMMAND: "}
 };
 
 
@@ -45,8 +48,6 @@ void initialize_screen(void)
       } 
     }
   }
-  // Copy the instructions into the status buffer
-  set_status_instructions();
 }
 
 void print_screen(void)
@@ -55,9 +56,15 @@ void print_screen(void)
   printf("%s\n",aucOnScreenStatus);
   for (int i=0; i<NUM_SCREEN_LINES; i++)
   {
-    printf("%s\n",aucScreen[i]);
+    if (i == NUM_SCREEN_LINES-1)
+    {
+      printf("%s",aucScreen[i]);
+    }
+    else
+    {
+      printf("%s\n",aucScreen[i]);
+    }
   }
-  printf("\nYOUR COMMAND: ");
 }
 
 void draw_player_on_seesaw(sIslander* psPlayer, unsigned int uiSeesawIndex)

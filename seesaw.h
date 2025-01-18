@@ -13,9 +13,8 @@
 #define INPUT_SIZE         3 // is 3 because it includes the newline
 
 // SEESAW COMPUTE
-#define L_HALF             0
-#define R_HALF             1
-#define NONE_HALF          2
+#define MAX_L_POS          5
+#define MAX_R_POS         11
 
 // The struct which each islander is
 typedef struct{

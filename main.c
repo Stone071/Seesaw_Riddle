@@ -23,6 +23,7 @@ char acInputBuf[INPUT_SIZE] = {0xFF}; //0xFF is an invalid ASCII char
 unsigned int uiCommand[2] = {0xFF};
 bool fGameLoop = true;
 bool fScreenRefresh = false;
+unsigned int uiAttempts = 3;
 
 // HELPER FUNCTIONS
 unsigned int get_random(unsigned int uiMaxNumber)
@@ -112,15 +113,30 @@ void reset_seesaw(void)
   }
 }
 
+void get_input(void)
+{
+  // Clear acInputBuf
+  memset(acInputBuf, 0, INPUT_SIZE);
+  // Grab everything in stdin and discard everything but the first two chars.
+  int iter = 0;
+  int c;
+  while ( (c = getchar()) != '\n' && c != '\r' && c != EOF)
+  {
+    if (iter < INPUT_SIZE)
+    {
+      acInputBuf[iter] = c;
+    }
+    iter++;
+  }
+}
+
 // Function retrieves 3 chars from stdin, and executes commands if input is valid.
-unsigned char get_input(void)
+unsigned char get_command(void)
 {
   sIslander* psPlayer;
   unsigned int uiSeesawIndex;
 
-  memset(acInputBuf, 0, INPUT_SIZE);
-  // must use fgets so we can get more than one character at a time
-  char* cRet = fgets(acInputBuf, INPUT_SIZE, stdin);
+  get_input();
 
   if (acInputBuf[0] == 'Q') // QUIT
   {
@@ -128,23 +144,98 @@ unsigned char get_input(void)
   }
   else if (acInputBuf[0] == 'T') // TEST
   {
-    // Have not written this yet.
-    fScreenRefresh = true;
+    if (uiAttempts == 0)
+    {
+      // Set a status message
+      reset_status_msg();
+      char acNewStatus[] = "You have exhausted your three attempts.\n\
+      Do you know who it is?\n";
+      memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      fScreenRefresh = true;
+    }
+    else
+    {
+      // At the moment, we are not using their distance from the fulcrum at all
+      // we are computing as if they are all sitting equidistant from the fulcrum.
+      unsigned int uiLeftSum = 0;
+      unsigned int uiRightSum = 0;
+      for (int i=0; i<=MAX_L_POS; i++)
+      {
+        // Make sure we are at a filled position
+        if (apsSeesaw[i] != NULL)
+        {
+          uiLeftSum += apsSeesaw[i]->weight;
+        }
+      }
+      for (int i=MAX_L_POS+1; i<= MAX_R_POS; i++)
+      {
+        if (apsSeesaw[i] != NULL)
+        {
+          uiRightSum += apsSeesaw[i]->weight;
+        }
+      }
+
+      // Set a status message
+      reset_status_msg();
+      if (uiLeftSum == uiRightSum)
+      {
+        char acNewStatus[] = "The seesaw is perfectly still...\n";
+        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      }
+      else if (uiLeftSum > uiRightSum)
+      {
+        char acNewStatus[] = "The LEFT half of the seesaw drops toward the ground!\n";
+        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      }
+      else if (uiRightSum > uiLeftSum)
+      {
+        char acNewStatus[] = "The RIGHT half of the seesaw drops toward the ground!\n";
+        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      }
+      else
+      {
+        char acNewStatus[] = "THIS SHOULD NOT HAPPEN\n";
+        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      }
+      uiAttempts -= 1;
+      fScreenRefresh = true;
+    }
   }
   else if (acInputBuf[0] == 'R') // RESET
   {
     // reset all postions and update screen
     reset_seesaw();
     initialize_screen();
+    reset_status_msg();
+    char acNewStatus[] = "Islander positions reset...\n";
+    memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
     fScreenRefresh = true;
   }
-  else if (acInputBuf[0] == 'I')
+  else if (acInputBuf[0] == 'I') // INSTRUCTIONS
   {
     reset_status_msg();
     set_status_instructions();
     fScreenRefresh = true;
   }
-  else if (acInputBuf[0] >= 'A' && acInputBuf[0]<= 'L')
+  else if (acInputBuf[0] == 'W') // WHO IS IT
+  {
+    reset_status_msg();
+    for (int i=0; i<NUM_ISLANDERS; i++)
+    {
+      if (asIslanders[i].weight != DEFAULT_WEIGHT)
+      {
+        char acMessage[20];
+        char cName = asIslanders[i].name;
+        unsigned int uiWeight = asIslanders[i].weight;
+        memcpy(acMessage, &cName, sizeof(cName));
+        memcpy(acMessage + 2*sizeof(cName), &uiWeight, sizeof(uiWeight));
+        memcpy(aucOnScreenStatus, acMessage, sizeof(acMessage));
+        break;
+      }
+    }
+    fScreenRefresh = true;
+  }
+  else if (acInputBuf[0] >= 'A' && acInputBuf[0]<= 'L') // PLACE AN ISLANDER
   {
     if (acInputBuf[1] == '1'
       || acInputBuf[1] == '2'
@@ -168,6 +259,9 @@ unsigned char get_input(void)
         {
           // MOVE THE PLAYER!
           place_player();
+          reset_status_msg();
+          char cNewStatus[] = "Islander placed...\n";
+          memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
           fScreenRefresh = true;
         }
         else
@@ -212,6 +306,7 @@ bool main(void)
   //}
 
   initialize_screen();
+  set_status_instructions();
   print_screen();
 
   // The actual game loop!
@@ -219,7 +314,7 @@ bool main(void)
   {
     // Everything is keyboard driven, get the input, trigger changes, 
     //then print screen.
-    get_input();
+    get_command();
     if (fScreenRefresh == true)
     {
       print_screen();
