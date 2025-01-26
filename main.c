@@ -211,7 +211,7 @@ unsigned char get_command(void)
     memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
     fScreenRefresh = true;
   }
-  else if (acInputBuf[0] == 'I') // INSTRUCTIONS
+  else if (acInputBuf[0] == 'M') // INSTRUCTIONS
   {
     reset_status_msg();
     set_status_instructions();

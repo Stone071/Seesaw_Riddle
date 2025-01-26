@@ -14,7 +14,7 @@ To put an islander on the seesaw, enter their name and the\n\
 position you would like them in, like 'A9'. Press R to reset\n\
 the seesaw. Enter 'T' when you want to let the seesaw drop.\n\
 Enter 'Q' when you want to quit. Enter 'W' to find out who\n\
-the person of unequal weight is. Enter 'I' to repeat instructions.\n"};
+the person of unequal weight is. Enter 'M' for instructions msg.\n"};
 // The buffer which will hold status messages
 unsigned char aucOnScreenStatus[sizeof(aucInstructions)];
 // This is the empty base frame which is flashed to the screen
