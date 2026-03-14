@@ -12,8 +12,12 @@
 #include "seesaw.h"
 
 // DEFINES
-#define NUM_SCREEN_LINES   6
-#define NUM_CHARS_LINE    26
+#define NUM_SCREEN_LINES       6
+#define NUM_CHARS_LINE        26
+#define END_OF_TEXT         0x03
+#define SEESAW_POS_CHAR_0      9
+#define SEESAW_POS_CHAR_EXC   10
+#define SEESAW_POS_CHAR_AT    11
 
 void initialize_screen(void);
 void print_screen(void);

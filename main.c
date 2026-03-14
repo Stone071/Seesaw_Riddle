@@ -1,9 +1,9 @@
 // ##############################################
 // # main.c
 // #
-// # A small text-based game which allows the user 
-// # to play out the seesaw island riddle from Brooklyn 99 
-// # 
+// # A small text-based game which allows the user
+// # to play out the seesaw island riddle from Brooklyn 99
+// #
 // # Zachary Stone, December 2024
 // ##############################################
 
@@ -33,6 +33,8 @@ bool fScreenRefresh = false;
 unsigned int uiAttempts = 3;
 
 // HELPER FUNCTIONS
+// get_islander_name gets the name of the islander at uiIndex position in asIslanders
+// and places it in pacDest, as long as maxSize is < the size of the name found.
 int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize)
 {
   if (maxSize >= sizeof(asIslanders[uiIndex].name))
@@ -46,20 +48,24 @@ int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize)
   }
 }
 
+// get_random returns a random uint in range [0,uiMaxNumber)
 unsigned int get_random(unsigned int uiMaxNumber)
 {
   unsigned int uiRand = rand() % uiMaxNumber;
   return uiRand;
 }
 
+// seed_rand seeds than random number generator with epoch time
 void seed_rand(void)
 {
-  srand(time(NULL)); 
+  srand(time(NULL));
 }
 
+// populate_island initializes the islanders in asIslanders selecting
+// one at random to be the special islander
 void populate_island(void)
 {
-  // PICK THE ONE  
+  // PICK THE ONE
   unsigned int uiTheOne = get_random(NUM_ISLANDERS);
 
   for (int i=0; i<NUM_ISLANDERS; i++)
@@ -79,11 +85,12 @@ void populate_island(void)
         uiWeight += uiVariance;
       }
     }
-    sIslander temp = {0x41+i, uiWeight, false};
+    sIslander temp = {'A'+i, uiWeight, false};
     asIslanders[i] = temp;
   }
 }
 
+// player_name_lookup returns a pointer to the islander with the name given as input
 sIslander* player_name_lookup(char cName)
 {
   sIslander* psPlayer = NULL;
@@ -99,9 +106,11 @@ sIslander* player_name_lookup(char cName)
   return psPlayer;
 }
 
+// place_player places the sIslander struct in proper position on apsSeesaw[],
+// taking player name and position from acInputBuf
 void place_player(void)
 {
-    // Translate the char position into the seesaw index
+  // Translate the char position into the seesaw index
   char cName = acInputBuf[0];
   char cPos = acInputBuf[1];
   unsigned int uiSeesawIndex = symbol_pos_to_seesaw_index(cPos);
@@ -123,6 +132,7 @@ void place_player(void)
   }
 }
 
+// reset_seesaw clears all positions in apsSeesaw[] and sets all sIslander.fOnSeesaw to false
 void reset_seesaw(void)
 {
   for (int i=0; i<NUM_ISLANDERS; i++)
@@ -132,6 +142,7 @@ void reset_seesaw(void)
   }
 }
 
+// get_input gets the input from the terminal and places it in acInputBuf[]
 void get_input(void)
 {
   // Clear acInputBuf
@@ -315,7 +326,7 @@ unsigned char get_command(void)
   }
 }
 
-
+// MAIN
 int main(void)
 {
   // Seed rand, use epoch time.
@@ -339,7 +350,7 @@ int main(void)
   // The actual game loop!
   while (fGameLoop)
   {
-    // Everything is keyboard driven, get the input, trigger changes, 
+    // Everything is keyboard driven, get the input, trigger changes,
     //then print screen.
     get_command();
     if (fScreenRefresh == true)

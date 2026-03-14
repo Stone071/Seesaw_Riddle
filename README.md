@@ -6,7 +6,7 @@ This program is a text-based game which allows the user to play out the seesaw i
 
 **There are 12 people on an island. There is a seesaw on the island. 11 of the people weigh the exact same amount. The other person has a slightly different weight. The user must determine who the person of unequal weight is using only the seesaw, and the seesaw can only be used 3 times.**
 
-I heard the riddle on the show and became a little obsessed with it. I spent much of my spare time thinking about the riddle, and avoided any and all internet searches which might help me. I really wanted the satisfaction of having solved it for myself.
+I heard the riddle on the show and became a little obsessed with it. I spent much of my spare time thinking about the riddle, and avoided any and all internet searches which might reveal the answer. I really wanted the satisfaction of having solved it for myself.
 
 Once I had an algorithm I thought worked, I wrote this program to give myself a nice way to test it.
 
@@ -19,7 +19,7 @@ Once I had an algorithm I thought worked, I wrote this program to give myself a 
 
 ### Acquiring Dependencies
 
-Dependencies can be installed through package manager of your choice. Here's the instructions for apt on Ubuntu. 
+Dependencies can be installed through package manager of your choice. Here's the instructions for apt on Ubuntu.
 
 `$ apt install gcc make`
 
@@ -40,9 +40,9 @@ The game is played in a terminal. `$ make play` will build and start the game fo
 When the game is first started, an screen explaining the instructions will appear. You can enter 'M' at any time to see this screen again. Here is a summary:
 
 - 'A9' -> Move islander A to postion 9.
-- 'R' -> Remove all islanders from the seesaw. 
+- 'R' -> Remove all islanders from the seesaw.
 - 'T' -> Test the current seesaw setup. This is one of your three seesaw uses.
-- 'W' -> Discover the identity and weight of the special islander.
+- 'W' -> Discover who is the special islander.
 - 'Q' -> Quit the game.
 - 'M' -> Display instructions message.
 

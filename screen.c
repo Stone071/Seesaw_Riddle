@@ -20,7 +20,7 @@ unsigned char aucScreen[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {0};
 const unsigned char aucInstructions[] = 
 {"Your islanders have names which are letters of the alphabet.\n\
 To put an islander on the seesaw, enter their name and the\n\
-position you would like them in, like 'A9'. Press R to reset\n\
+position you would like them in, like 'A9'. Enter R to reset\n\
 the seesaw. Enter 'T' when you want to let the seesaw drop.\n\
 Enter 'Q' when you want to quit. Enter 'W' to find out who\n\
 the person of unequal weight is. Enter 'M' for instructions msg.\n"};
@@ -36,7 +36,8 @@ const char ucScreenBase[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {
   {"YOUR COMMAND: "}
 };
 
-
+// initialize_screen copies the seesaw into the display buffer and places the islander
+// names in the buffer as well
 void initialize_screen(void)
 {
   unsigned int j = 0;
@@ -61,6 +62,8 @@ void initialize_screen(void)
   }
 }
 
+// set_status_msg takes input string and size, and places it in the screen status buffer
+// if size allows.
 int set_status_msg(const char* pacStatString, int size)
 {
   if (size < sizeof(aucOnScreenStatus))
@@ -74,6 +77,8 @@ int set_status_msg(const char* pacStatString, int size)
   }
 }
 
+// print_screen clears the screen and then prints the lines from aucOnScreenStatus and
+// aucScreen[] buffer
 void print_screen(void)
 {
 #ifndef DEBUG_MODE
@@ -93,6 +98,9 @@ void print_screen(void)
   }
 }
 
+// draw_player_on_seesaw takes an sIslander input and position, and places
+// the name of the sIslander into the aucScreen[] buffer at the correct position
+// in the seesaw diagram
 void draw_player_on_seesaw(sIslander* psPlayer, unsigned int uiSeesawIndex)
 {
   // Seesaw index needs to be translated into the proper screen position...
@@ -116,33 +124,37 @@ void draw_player_on_seesaw(sIslander* psPlayer, unsigned int uiSeesawIndex)
   }
 }
 
+// symbol_pos_to_seesaw_index translates input char 1-@ into an index for placing
+// the name of the player on the seesaw.
 unsigned int symbol_pos_to_seesaw_index(char cPos)
 {
   unsigned int uiSeesawIndex = 0xFF;
   if (cPos >= '1' && cPos <= '9')
   {
-    uiSeesawIndex = (unsigned int)cPos - 0x31;
+    uiSeesawIndex = (unsigned int)cPos - (unsigned int)'1';
   }
   else if (cPos == '0')
   {
-    uiSeesawIndex = 9;
+    uiSeesawIndex = SEESAW_POS_CHAR_0;
   }
   else if (cPos == '!')
   {
-    uiSeesawIndex = 10;
+    uiSeesawIndex = SEESAW_POS_CHAR_EXC;
   }
   else if (cPos == '@')
   {
-    uiSeesawIndex = 11;
+    uiSeesawIndex = SEESAW_POS_CHAR_AT;
   }
   return uiSeesawIndex;
 }
 
+// reset_status_msg clears aucOnScreenStatus
 void reset_status_msg(void)
 {
-  memset(aucOnScreenStatus, 0x3, sizeof(aucOnScreenStatus));
+  memset(aucOnScreenStatus, END_OF_TEXT, sizeof(aucOnScreenStatus));
 }
 
+// set_status_instructions places initial aucInstructions[] into aucOnScreenStatus
 void set_status_instructions(void)
 {
   memcpy(aucOnScreenStatus, aucInstructions, sizeof(aucInstructions));
