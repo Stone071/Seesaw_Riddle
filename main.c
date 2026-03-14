@@ -161,7 +161,7 @@ void get_input(void)
 }
 
 // Function retrieves 3 chars from stdin, and executes commands if input is valid.
-unsigned char get_command(void)
+void get_command(void)
 {
   sIslander* psPlayer;
   unsigned int uiSeesawIndex;
