@@ -1,13 +1,20 @@
-// This program should let the user play the 12 person seesaw game.
-// The game is a riddle the user is trying to solve.
-//
+// ##############################################
+// # main.c
+// #
+// # A small text-based game which allows the user 
+// # to play out the seesaw island riddle from Brooklyn 99 
+// # 
+// # Zachary Stone, December 2024
+// ##############################################
+
+// ### THE RIDDLE ###
 // There are 12 people on an island. There is a seesaw on the island.
 // 11 of the people weigh the exact same amount. The other person weighs
 // a slightly different weight. The user must determine who the person of
 // unequal weight is using only the seesaw, and the seesaw can only be used
 // 3 times.
-//
 
+// INCLUDES
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -26,6 +33,19 @@ bool fScreenRefresh = false;
 unsigned int uiAttempts = 3;
 
 // HELPER FUNCTIONS
+int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize)
+{
+  if (maxSize >= sizeof(asIslanders[uiIndex].name))
+  {
+    memcpy(pacDest, &(asIslanders[uiIndex].name), sizeof(asIslanders[uiIndex].name));
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
 unsigned int get_random(unsigned int uiMaxNumber)
 {
   unsigned int uiRand = rand() % uiMaxNumber;
@@ -96,10 +116,9 @@ void place_player(void)
   }
   else
   {
-    //printf("Error determining seesaw position\n");
     reset_status_msg();
-    char cNewStatus[] = "Error determining seesaw position\n";
-    memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+    char acNewStatus[] = "Error determining seesaw position\n";
+    set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
     fScreenRefresh = true;
   }
 }
@@ -148,9 +167,8 @@ unsigned char get_command(void)
     {
       // Set a status message
       reset_status_msg();
-      char acNewStatus[] = "You have exhausted your three attempts.\n\
-      Do you know who it is?\n";
-      memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      char acNewStatus[] = "You have exhausted your three attempts.\nDo you know who it is?\n";
+      set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       fScreenRefresh = true;
     }
     else
@@ -180,22 +198,22 @@ unsigned char get_command(void)
       if (uiLeftSum == uiRightSum)
       {
         char acNewStatus[] = "The seesaw is perfectly still...\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       else if (uiLeftSum > uiRightSum)
       {
         char acNewStatus[] = "The LEFT half of the seesaw drops toward the ground!\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       else if (uiRightSum > uiLeftSum)
       {
         char acNewStatus[] = "The RIGHT half of the seesaw drops toward the ground!\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       else
       {
         char acNewStatus[] = "THIS SHOULD NOT HAPPEN\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       uiAttempts -= 1;
       fScreenRefresh = true;
@@ -208,7 +226,7 @@ unsigned char get_command(void)
     initialize_screen();
     reset_status_msg();
     char acNewStatus[] = "Islander positions reset...\n";
-    memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+    set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
     fScreenRefresh = true;
   }
   else if (acInputBuf[0] == 'M') // INSTRUCTIONS
@@ -237,7 +255,7 @@ unsigned char get_command(void)
         strcat(acMessage, acWeight);
         strcat(acMessage, acNewline);
         // Copy to screen status buffer
-        memcpy(aucOnScreenStatus, acMessage, sizeof(acMessage));
+        set_status_msg(&acMessage[0], sizeof(acMessage));
         break;
       }
     }
@@ -268,50 +286,51 @@ unsigned char get_command(void)
           // MOVE THE PLAYER!
           place_player();
           reset_status_msg();
-          char cNewStatus[] = "Islander placed...\n";
-          memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+          char acNewStatus[] = "Islander placed...\n";
+          set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
           fScreenRefresh = true;
         }
         else
         {
-          //printf("Player is already on seesaw or position is already filled.\n");
           reset_status_msg();
-          char cNewStatus[] = "Player is already on seesaw or position is already filled.\n";
-          memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+          char acNewStatus[] = "Player is already on seesaw or position is already filled.\n";
+          set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
           fScreenRefresh = true;
         }
       }
       else
       {
-        //printf("Your command was not recognized.\n");
         reset_status_msg();
-        char cNewStatus[] = "Your command was not recognized.\n";
-        memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+        char acNewStatus[] = "Your command was not recognized.\n";
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
         fScreenRefresh = true;
       }
   }
   else
   {
-    //printf("Your command was not recognized.\n");
     reset_status_msg();
-    char cNewStatus[] = "Your command was not recognized.\n";
-    memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+    char acNewStatus[] = "Your command was not recognized.\n";
+    set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
     fScreenRefresh = true;
   }
 }
 
 
-bool main(void)
+int main(void)
 {
   // Seed rand, use epoch time.
   seed_rand();
   // Generate the islanders, with one unequal weight.
   populate_island();
 
-  //for (int i=0; i<NUM_ISLANDERS; i++)
-  //{
-  //  printf("%c: %i\n", asIslanders[i].name, asIslanders[i].weight);
-  //}
+#ifdef DEBUG_MODE
+  printf("### PLAYERS GENERATED ###\n");
+  for (int i=0; i<NUM_ISLANDERS; i++)
+  {
+    printf("%c: %i\n", asIslanders[i].name, asIslanders[i].weight);
+  }
+  printf("\n");
+#endif
 
   initialize_screen();
   set_status_instructions();
@@ -325,9 +344,10 @@ bool main(void)
     get_command();
     if (fScreenRefresh == true)
     {
-      print_screen();
       fScreenRefresh = false;
+      print_screen();
     }
   }
-  return true;
+  printf("Thanks for playing!\n");
+  return 0;
 }

@@ -1,11 +1,20 @@
-// This source file is going to handle screen management
+// ##############################################
+// # screen.c
+// #
+// # This file is going to handle screen management
+// # for the seesaw_riddle game
+// # 
+// # Zachary Stone, December 2024
+// ##############################################
+
+// INCLUDES
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "screen.h"
 #include "seesaw.h"
 
-// Globals
+// GLOBALS
 unsigned char aucScreen[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {0};
 // The instructions for the player
 const unsigned char aucInstructions[] = 
@@ -31,6 +40,7 @@ const char ucScreenBase[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {
 void initialize_screen(void)
 {
   unsigned int j = 0;
+  char cTemp;
   // Copy each line of screen base into screen buffer
   for (int i=0; i<NUM_SCREEN_LINES; i++)
   {
@@ -43,16 +53,32 @@ void initialize_screen(void)
       // Copy the names of the islanders into the bottom line
       if (j < NUM_ISLANDERS)
       {
-        memcpy((aucScreen[3] + (j*2)), &(asIslanders[j].name), sizeof(unsigned char));
+        get_islander_name(j, &cTemp, sizeof(cTemp));
+        memcpy((aucScreen[3] + (j*2)), &cTemp, sizeof(cTemp));
         j++;
       } 
     }
   }
 }
 
+int set_status_msg(const char* pacStatString, int size)
+{
+  if (size < sizeof(aucOnScreenStatus))
+  {
+    memcpy(aucOnScreenStatus,  pacStatString, size);
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
 void print_screen(void)
 {
+#ifndef DEBUG_MODE
   system("clear");
+#endif
   printf("%s\n",aucOnScreenStatus);
   for (int i=0; i<NUM_SCREEN_LINES; i++)
   {

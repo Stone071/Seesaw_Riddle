@@ -1,3 +1,12 @@
+// ##############################################
+// # seesaw.h
+// #
+// # This header contains data relevant to operation
+// # of the seesaw game in main.c
+// # 
+// # Zachary Stone, December 2024
+// ##############################################
+
 #ifndef SEESAW_H
 #define SEESAW_H
 
@@ -16,14 +25,14 @@
 #define MAX_L_POS          5
 #define MAX_R_POS         11
 
-// The struct which each islander is
+// DATA TYPES
+// The struct which describes each islander
 typedef struct{
   unsigned char name;
   int weight;
   bool fOnSeesaw;
 }sIslander;
 
-// Must be extern so compiler doesn't fully define it here in the header.
-extern sIslander asIslanders[NUM_ISLANDERS];
+int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize);
 
 #endif
