@@ -1,13 +1,20 @@
-// This program should let the user play the 12 person seesaw game.
-// The game is a riddle the user is trying to solve.
-//
+// ##############################################
+// # main.c
+// #
+// # A small text-based game which allows the user
+// # to play out the seesaw island riddle from Brooklyn 99
+// #
+// # Zachary Stone, December 2024
+// ##############################################
+
+// ### THE RIDDLE ###
 // There are 12 people on an island. There is a seesaw on the island.
 // 11 of the people weigh the exact same amount. The other person weighs
 // a slightly different weight. The user must determine who the person of
 // unequal weight is using only the seesaw, and the seesaw can only be used
 // 3 times.
-//
 
+// INCLUDES
 #include <stdio.h>
 #include <stdbool.h>
 #include <time.h>
@@ -26,20 +33,39 @@ bool fScreenRefresh = false;
 unsigned int uiAttempts = 3;
 
 // HELPER FUNCTIONS
+// get_islander_name gets the name of the islander at uiIndex position in asIslanders
+// and places it in pacDest, as long as maxSize is < the size of the name found.
+int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize)
+{
+  if (maxSize >= sizeof(asIslanders[uiIndex].name))
+  {
+    memcpy(pacDest, &(asIslanders[uiIndex].name), sizeof(asIslanders[uiIndex].name));
+    return 0;
+  }
+  else
+  {
+    return 1;
+  }
+}
+
+// get_random returns a random uint in range [0,uiMaxNumber)
 unsigned int get_random(unsigned int uiMaxNumber)
 {
   unsigned int uiRand = rand() % uiMaxNumber;
   return uiRand;
 }
 
+// seed_rand seeds than random number generator with epoch time
 void seed_rand(void)
 {
-  srand(time(NULL)); 
+  srand(time(NULL));
 }
 
+// populate_island initializes the islanders in asIslanders selecting
+// one at random to be the special islander
 void populate_island(void)
 {
-  // PICK THE ONE  
+  // PICK THE ONE
   unsigned int uiTheOne = get_random(NUM_ISLANDERS);
 
   for (int i=0; i<NUM_ISLANDERS; i++)
@@ -59,11 +85,12 @@ void populate_island(void)
         uiWeight += uiVariance;
       }
     }
-    sIslander temp = {0x41+i, uiWeight, false};
+    sIslander temp = {'A'+i, uiWeight, false};
     asIslanders[i] = temp;
   }
 }
 
+// player_name_lookup returns a pointer to the islander with the name given as input
 sIslander* player_name_lookup(char cName)
 {
   sIslander* psPlayer = NULL;
@@ -79,9 +106,11 @@ sIslander* player_name_lookup(char cName)
   return psPlayer;
 }
 
+// place_player places the sIslander struct in proper position on apsSeesaw[],
+// taking player name and position from acInputBuf
 void place_player(void)
 {
-    // Translate the char position into the seesaw index
+  // Translate the char position into the seesaw index
   char cName = acInputBuf[0];
   char cPos = acInputBuf[1];
   unsigned int uiSeesawIndex = symbol_pos_to_seesaw_index(cPos);
@@ -96,14 +125,14 @@ void place_player(void)
   }
   else
   {
-    //printf("Error determining seesaw position\n");
     reset_status_msg();
-    char cNewStatus[] = "Error determining seesaw position\n";
-    memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+    char acNewStatus[] = "Error determining seesaw position\n";
+    set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
     fScreenRefresh = true;
   }
 }
 
+// reset_seesaw clears all positions in apsSeesaw[] and sets all sIslander.fOnSeesaw to false
 void reset_seesaw(void)
 {
   for (int i=0; i<NUM_ISLANDERS; i++)
@@ -113,6 +142,7 @@ void reset_seesaw(void)
   }
 }
 
+// get_input gets the input from the terminal and places it in acInputBuf[]
 void get_input(void)
 {
   // Clear acInputBuf
@@ -131,7 +161,7 @@ void get_input(void)
 }
 
 // Function retrieves 3 chars from stdin, and executes commands if input is valid.
-unsigned char get_command(void)
+void get_command(void)
 {
   sIslander* psPlayer;
   unsigned int uiSeesawIndex;
@@ -148,9 +178,8 @@ unsigned char get_command(void)
     {
       // Set a status message
       reset_status_msg();
-      char acNewStatus[] = "You have exhausted your three attempts.\n\
-      Do you know who it is?\n";
-      memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+      char acNewStatus[] = "You have exhausted your three attempts.\nDo you know who it is?\n";
+      set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       fScreenRefresh = true;
     }
     else
@@ -180,22 +209,22 @@ unsigned char get_command(void)
       if (uiLeftSum == uiRightSum)
       {
         char acNewStatus[] = "The seesaw is perfectly still...\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       else if (uiLeftSum > uiRightSum)
       {
         char acNewStatus[] = "The LEFT half of the seesaw drops toward the ground!\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       else if (uiRightSum > uiLeftSum)
       {
         char acNewStatus[] = "The RIGHT half of the seesaw drops toward the ground!\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       else
       {
         char acNewStatus[] = "THIS SHOULD NOT HAPPEN\n";
-        memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
       }
       uiAttempts -= 1;
       fScreenRefresh = true;
@@ -208,7 +237,7 @@ unsigned char get_command(void)
     initialize_screen();
     reset_status_msg();
     char acNewStatus[] = "Islander positions reset...\n";
-    memcpy(aucOnScreenStatus, acNewStatus, sizeof(acNewStatus));
+    set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
     fScreenRefresh = true;
   }
   else if (acInputBuf[0] == 'M') // INSTRUCTIONS
@@ -237,7 +266,7 @@ unsigned char get_command(void)
         strcat(acMessage, acWeight);
         strcat(acMessage, acNewline);
         // Copy to screen status buffer
-        memcpy(aucOnScreenStatus, acMessage, sizeof(acMessage));
+        set_status_msg(&acMessage[0], sizeof(acMessage));
         break;
       }
     }
@@ -268,50 +297,51 @@ unsigned char get_command(void)
           // MOVE THE PLAYER!
           place_player();
           reset_status_msg();
-          char cNewStatus[] = "Islander placed...\n";
-          memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+          char acNewStatus[] = "Islander placed...\n";
+          set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
           fScreenRefresh = true;
         }
         else
         {
-          //printf("Player is already on seesaw or position is already filled.\n");
           reset_status_msg();
-          char cNewStatus[] = "Player is already on seesaw or position is already filled.\n";
-          memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+          char acNewStatus[] = "Player is already on seesaw or position is already filled.\n";
+          set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
           fScreenRefresh = true;
         }
       }
       else
       {
-        //printf("Your command was not recognized.\n");
         reset_status_msg();
-        char cNewStatus[] = "Your command was not recognized.\n";
-        memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+        char acNewStatus[] = "Your command was not recognized.\n";
+        set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
         fScreenRefresh = true;
       }
   }
   else
   {
-    //printf("Your command was not recognized.\n");
     reset_status_msg();
-    char cNewStatus[] = "Your command was not recognized.\n";
-    memcpy(aucOnScreenStatus, &cNewStatus, sizeof(cNewStatus));
+    char acNewStatus[] = "Your command was not recognized.\n";
+    set_status_msg(&acNewStatus[0], sizeof(acNewStatus));
     fScreenRefresh = true;
   }
 }
 
-
-bool main(void)
+// MAIN
+int main(void)
 {
   // Seed rand, use epoch time.
   seed_rand();
   // Generate the islanders, with one unequal weight.
   populate_island();
 
-  //for (int i=0; i<NUM_ISLANDERS; i++)
-  //{
-  //  printf("%c: %i\n", asIslanders[i].name, asIslanders[i].weight);
-  //}
+#ifdef DEBUG_MODE
+  printf("### PLAYERS GENERATED ###\n");
+  for (int i=0; i<NUM_ISLANDERS; i++)
+  {
+    printf("%c: %i\n", asIslanders[i].name, asIslanders[i].weight);
+  }
+  printf("\n");
+#endif
 
   initialize_screen();
   set_status_instructions();
@@ -320,14 +350,15 @@ bool main(void)
   // The actual game loop!
   while (fGameLoop)
   {
-    // Everything is keyboard driven, get the input, trigger changes, 
+    // Everything is keyboard driven, get the input, trigger changes,
     //then print screen.
     get_command();
     if (fScreenRefresh == true)
     {
-      print_screen();
       fScreenRefresh = false;
+      print_screen();
     }
   }
-  return true;
+  printf("Thanks for playing!\n");
+  return 0;
 }
