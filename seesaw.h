@@ -33,6 +33,6 @@ typedef struct{
   bool fOnSeesaw;
 }sIslander;
 
-int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize);
+int get_islander_name(unsigned int uiIndex, char* pacDest, unsigned int maxSize);
 
 #endif

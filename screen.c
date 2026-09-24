@@ -15,7 +15,7 @@
 #include "seesaw.h"
 
 // GLOBALS
-unsigned char aucScreen[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {0};
+char acScreen[NUM_SCREEN_LINES][NUM_CHARS_LINE] = {0};
 // The instructions for the player
 const unsigned char aucInstructions[] = 
 {"Your islanders have names which are letters of the alphabet.\n\
@@ -45,7 +45,7 @@ void initialize_screen(void)
   // Copy each line of screen base into screen buffer
   for (int i=0; i<NUM_SCREEN_LINES; i++)
   {
-    strcpy(aucScreen[i], ucScreenBase[i]);
+    strcpy(acScreen[i], ucScreenBase[i]);
   }
   for (int i=0; i<NUM_CHARS_LINE; i++)
   {
@@ -55,7 +55,7 @@ void initialize_screen(void)
       if (j < NUM_ISLANDERS)
       {
         get_islander_name(j, &cTemp, sizeof(cTemp));
-        memcpy((aucScreen[3] + (j*2)), &cTemp, sizeof(cTemp));
+        memcpy((acScreen[3] + (j*2)), &cTemp, sizeof(cTemp));
         j++;
       } 
     }
@@ -64,7 +64,7 @@ void initialize_screen(void)
 
 // set_status_msg takes input string and size, and places it in the screen status buffer
 // if size allows.
-int set_status_msg(const char* pacStatString, int size)
+int set_status_msg(const char* pacStatString, unsigned int size)
 {
   if (size < sizeof(aucOnScreenStatus))
   {
@@ -78,7 +78,7 @@ int set_status_msg(const char* pacStatString, int size)
 }
 
 // print_screen clears the screen and then prints the lines from aucOnScreenStatus and
-// aucScreen[] buffer
+// acScreen[] buffer
 void print_screen(void)
 {
 #ifndef DEBUG_MODE
@@ -89,17 +89,17 @@ void print_screen(void)
   {
     if (i == NUM_SCREEN_LINES-1)
     {
-      printf("%s",aucScreen[i]);
+      printf("%s",acScreen[i]);
     }
     else
     {
-      printf("%s\n",aucScreen[i]);
+      printf("%s\n",acScreen[i]);
     }
   }
 }
 
 // draw_player_on_seesaw takes an sIslander input and position, and places
-// the name of the sIslander into the aucScreen[] buffer at the correct position
+// the name of the sIslander into the acScreen[] buffer at the correct position
 // in the seesaw diagram
 void draw_player_on_seesaw(sIslander* psPlayer, unsigned int uiSeesawIndex)
 {
@@ -114,13 +114,13 @@ void draw_player_on_seesaw(sIslander* psPlayer, unsigned int uiSeesawIndex)
   {
     uiScreenPos = uiSeesawIndex * 2 + 2;
   }
-  memcpy(aucScreen[0] + uiScreenPos, &ucPlayerName, sizeof(unsigned char));
+  memcpy(acScreen[0] + uiScreenPos, &ucPlayerName, sizeof(unsigned char));
 
   // Also remove their name from the bottom line
   for (int i=0; i<NUM_CHARS_LINE; i++)
   {
-    if (*(aucScreen[3]+i) == ucPlayerName)
-    memset(aucScreen[3] + i, ' ', sizeof(unsigned char));
+    if (*(acScreen[3]+i) == ucPlayerName)
+    memset(acScreen[3] + i, ' ', sizeof(unsigned char));
   }
 }
 

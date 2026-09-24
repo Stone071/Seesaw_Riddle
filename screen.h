@@ -24,7 +24,7 @@ void print_screen(void);
 void draw_player_on_seesaw(sIslander* psPlayer, unsigned int uiSeesawIndex);
 unsigned int symbol_pos_to_seesaw_index(char cPos);
 void reset_status_msg(void);
-int set_status_msg(const char* pacOnScreenStatus, int size);
+int set_status_msg(const char* pacOnScreenStatus, unsigned int size);
 void set_status_instructions(void);
 
 #endif

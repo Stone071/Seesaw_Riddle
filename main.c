@@ -35,7 +35,7 @@ unsigned int uiAttempts = 3;
 // HELPER FUNCTIONS
 // get_islander_name gets the name of the islander at uiIndex position in asIslanders
 // and places it in pacDest, as long as maxSize is < the size of the name found.
-int get_islander_name(unsigned int uiIndex, char* pacDest, int maxSize)
+int get_islander_name(unsigned int uiIndex, char* pacDest, unsigned int maxSize)
 {
   if (maxSize >= sizeof(asIslanders[uiIndex].name))
   {
@@ -68,7 +68,7 @@ void populate_island(void)
   // PICK THE ONE
   unsigned int uiTheOne = get_random(NUM_ISLANDERS);
 
-  for (int i=0; i<NUM_ISLANDERS; i++)
+  for (unsigned int i=0; i<NUM_ISLANDERS; i++)
   {
     unsigned int uiWeight = DEFAULT_WEIGHT;
     if (i == uiTheOne)
@@ -259,7 +259,7 @@ void get_command(void)
         char cName = asIslanders[i].name;
         char acWeight[4];
         // sprintf convert weight to a string
-        int iBytesWritten = sprintf(acWeight, "%i", asIslanders[i].weight);
+        sprintf(acWeight, "%i", asIslanders[i].weight);
         // Put islander's name in message first, followed by weight and formatting.
         memcpy(acMessage, &cName, sizeof(cName));
         strcat(acMessage, acSeparator);
@@ -333,20 +333,20 @@ int main(void)
   seed_rand();
   // Generate the islanders, with one unequal weight.
   populate_island();
-
-#ifdef DEBUG_MODE
+  
+  #ifdef DEBUG_MODE
   printf("### PLAYERS GENERATED ###\n");
   for (int i=0; i<NUM_ISLANDERS; i++)
   {
     printf("%c: %i\n", asIslanders[i].name, asIslanders[i].weight);
   }
   printf("\n");
-#endif
-
+  #endif
+  
   initialize_screen();
   set_status_instructions();
   print_screen();
-
+  
   // The actual game loop!
   while (fGameLoop)
   {
