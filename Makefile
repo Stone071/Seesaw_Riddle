@@ -16,7 +16,7 @@ out_dir:
 
 shared:out_dir
 # No need for any screen logic
-	gcc $(COMP_FLAGS) -shared -fPIC  -DSHARED_LIB main.c -o $(OUT_DIR)/gamelib.so
+	gcc $(COMP_FLAGS) -shared -fPIC -DSHARED_LIB -DDEBUG host.c -o $(OUT_DIR)/gamehost.so
 
 clean:
 	rm -f $(OUT_DIR)/game
