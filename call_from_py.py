@@ -2,6 +2,18 @@
 
 import ctypes
 
+def PrintTurnResult(iRetVal):
+  if (iRetVal == 0):
+    print(f"Turn Taken: LEFT SIDE FALLS")
+  elif (iRetVal == 1):
+    print(f"Turn Taken: RIGHT SIDE FALLS")
+  elif (iRetVal == 2):
+    print(f"Turn Taken: SEESAW IS BALANCED")
+  elif (iRetVal == 3):
+    print(f"NO MORE ATTEMPTS")
+  else:
+    print(f"Turn Taken: returned {iRetVal}")
+
 # Assign the shared lib to gamehost
 gamehost = ctypes.CDLL("./bin/gamehost.so")
 
@@ -10,19 +22,27 @@ gamehost.BeginGame.argtypes = [ctypes.c_uint32]
 gamehost.BeginGame.restype = ctypes.c_uint32
 gamehost.TakeTurn.argtypes = [ctypes.c_uint32, ctypes.c_wchar_p]
 gamehost.TakeTurn.restype = ctypes.c_int
+gamehost.RevealPerson.argtypes = [ctypes.c_uint32]
+gamehost.RevealPerson.restype = ctypes.c_int
+gamehost.RevealWeight.argtypes = [ctypes.c_uint32]
+gamehost.RevealWeight.restype = ctypes.c_int
 
-myToken = 1
-result = gamehost.BeginGame(myToken)
-print(f"BeginGame return: {result}")
+for thisToken in range(1, 5):
+  print(f"\nRUNNING GAME {thisToken}\n")
 
-result = gamehost.TakeTurn(myToken, "ABC   DEF   ")
-if (result == 0):
-  print(f"Turn Taken: LEFT SIDE FALLS")
-elif (result == 1):
-  print(f"Turn Taken: RIGHT SIDE FALLS")
-elif (result == 2):
-  print(f"Turn Taken: SEESAW IS BALANCED")
-elif (result == 3):
-  print(f"NO MORE ATTEMPTS")
-else:
-  print(f"Turn Taken: returned {result}")
+  result = gamehost.BeginGame(thisToken)
+  #print(f"BeginGame returned: {result}")
+
+  result = gamehost.TakeTurn(thisToken, "ABC   DEF   ")
+  PrintTurnResult(result)
+  result = gamehost.TakeTurn(thisToken, "ABC   DEF   ")
+  PrintTurnResult(result)
+  result = gamehost.TakeTurn(thisToken, "ABC   DEF   ")
+  PrintTurnResult(result)
+  result = gamehost.TakeTurn(thisToken, "ABC   DEF   ")
+  PrintTurnResult(result)
+
+  result = gamehost.RevealPerson(thisToken)
+  print(f"THE ISLANDER WAS: {result}")
+  result = gamehost.RevealWeight(thisToken)
+  print(f"THEIR WEIGHT WAS: {result}")

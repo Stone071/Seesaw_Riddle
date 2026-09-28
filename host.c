@@ -104,31 +104,49 @@ int CloseHost(void)
 // Look through the games. If you see the given token, return that you found a game
 // and set slot offset to that game. If you don't find the game, return the offset of
 // the first open slot
-bool GameLookup(int iGivenToken, unsigned short* psSlotOffset)
+bool GameLookup(int iGivenToken, unsigned short* pusGameOffset, unsigned short* pusEmptyOffset)
 {
   bool fGameFound = false;
+  bool fEmptySlotFound = false;
   game_t* pGame = NULL;
-  *psSlotOffset = 0;
 
   // Check the persistent games
-  for (unsigned int i = 0; i < PERSISTENT_GAMES_SIZE; i += sizeof(game_t))
+  #ifdef DEBUG
+  printf("Looking up game: %d\n", iGivenToken);
+  #endif
+  for (unsigned int i = 0; i < MAX_GAMES; i++)
   {
     pGame = psPersistentGames + i;
     if (pGame->iToken == iGivenToken)
     {
-      // We found an existing game
+      // We found an existing game with this token
       fGameFound = true;
-      *psSlotOffset = i;
-      break;
+      *pusGameOffset = i;
+      #ifdef DEBUG
+      printf("Game found at slot: %d\n", i);
+      #endif
 
       // Maybe if all attempts are already used in this game, we reuse this spot?
     }
     // This is an empty spot
-    else if (pGame->iToken == 0 && *psSlotOffset == 0)
+    else if (pGame->iToken == 0 && fEmptySlotFound == false)
     {
-      *psSlotOffset = i;
+      fEmptySlotFound = true;
+      *pusEmptyOffset = i;
+    }
+    // If we've found the game and an empty slot already, we can conclude our search
+    else if (fGameFound == true && fEmptySlotFound == true)
+    {
+      break;
     }
   }
+
+  #ifdef DEBUG
+  if (fGameFound == false)
+  {
+    printf("Game not found. Empty slot %d logged\n", *pusEmptyOffset);
+  }
+  #endif
 
   // Return whether you found the game or not
   return fGameFound;
@@ -139,7 +157,8 @@ int BeginGame(int iNewToken)
 {
   game_t* pGame;
   bool fGameFound = false;
-  unsigned short usSlotOffset = 0;
+  unsigned short usGameOffset = 0;
+  unsigned short usEmptyOffset = 0;
 
 #ifdef DEBUG
   printf("BEGIN GAME ENTERED\n");
@@ -148,6 +167,9 @@ int BeginGame(int iNewToken)
   // Check that host has mapped the persistent games
   if (psPersistentGames == NULL)
   {
+    #ifdef DEBUG
+    printf("Initializing host files...\n");
+    #endif
     InitializeHost();
   }
   else if (psPersistentGames == MAP_FAILED)
@@ -156,38 +178,38 @@ int BeginGame(int iNewToken)
     return -1;
   }
 
-  // Check if a game exists under this token. If one does not,
-  // usSlotOffset will be an open slot for a new game.
-  fGameFound = GameLookup(iNewToken, &usSlotOffset);
+  // Check if a game exists under this token.
+  fGameFound = GameLookup(iNewToken, &usGameOffset, &usEmptyOffset);
 
   // If no game already using this token, create a game
   if (fGameFound == false)
   {
     // First check if the open slot offset is really open
-    pGame = psPersistentGames + (usSlotOffset * sizeof(game_t));
+    pGame = psPersistentGames + usEmptyOffset;
     if (pGame->iToken == 0)
     {
       InitializeGame(pGame, iNewToken);
-      printf("NEW GAME WITH TOKEN: %d", iNewToken);
     } 
   }
 
   return 0;
 }
 
-// 
+// Allow users to submit a turn as a string
+// "ABC   DEF   " is A,B,C on left side, D,E,F on right
 int TakeTurn(int iToken, char* acSeesawLayout)
 {
   unsigned short usGameSlot = 0;
+  unsigned short usEmptySlot = 0;
   int iRetVal = -1;
   bool fOnSeesaw = false;
   unsigned char ucSeesawIndex = 0;
   game_t* pGame = NULL;
-  bool fGameFound = GameLookup(iToken, &usGameSlot);
+  bool fGameFound = GameLookup(iToken, &usGameSlot, &usEmptySlot);
 
   if (fGameFound == true)
   {
-    pGame = psPersistentGames + (usGameSlot * sizeof(game_t));
+    pGame = psPersistentGames + usGameSlot;
 
     // Check if another turn can be taken
     if (pGame->ucAttemptsMade < 3)
@@ -238,14 +260,62 @@ int TakeTurn(int iToken, char* acSeesawLayout)
         // should not be here...
         iRetVal = -1;
       }
+
+      // Log that a turn was taken
+      pGame->ucAttemptsMade += 1;
     }
     else
     {
       iRetVal = NO_MORE_ATTEMPTS;
     }
-    
-    // Log that a turn was taken
-    pGame->ucAttemptsMade++;
+  }
+  else
+  {
+    iRetVal = -1;
+  }
+
+  return iRetVal;
+}
+
+// Reveal who the differently weighted individual is
+// returns
+// 0: A
+// 1: B
+// etc...
+int RevealPerson(int iToken)
+{
+  int iRetVal = -1;
+  unsigned short usGameOffset = 0;
+  unsigned short usEmptySlot = 0;
+  game_t* pGame = NULL;
+  bool fGameFound = GameLookup(iToken, &usGameOffset, &usEmptySlot);
+
+  if (fGameFound == true)
+  {
+    pGame = psPersistentGames + usGameOffset;
+    iRetVal = (int)(pGame->cDiffIslander - 'A');
+  }
+  else
+  {
+    iRetVal = -1;
+  }
+
+  return iRetVal;
+}
+
+// Reveal the different weight
+int RevealWeight(int iToken)
+{
+  int iRetVal = -1;
+  unsigned short usGameOffset = 0;
+  unsigned short usEmptySlot = 0;
+  game_t* pGame = NULL;
+  bool fGameFound = GameLookup(iToken, &usGameOffset, &usEmptySlot);
+
+  if (fGameFound == true)
+  {
+    pGame = psPersistentGames + usGameOffset;
+    iRetVal = (int)(pGame->ucDiffWeight);
   }
   else
   {
@@ -258,6 +328,9 @@ int TakeTurn(int iToken, char* acSeesawLayout)
 // Initialize the values for a new game at the address pGame
 static int InitializeGame(game_t* pGame, int iToken)
 {
+  #ifdef DEBUG
+  printf("Initializing game with token %d\n", iToken);
+  #endif
   pGame->iToken = iToken;
   SeedRand();
   PopulateGame(pGame);
