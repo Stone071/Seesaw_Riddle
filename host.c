@@ -125,8 +125,6 @@ bool GameLookup(int iGivenToken, unsigned short* pusGameOffset, unsigned short* 
       #ifdef DEBUG
       printf("Game found at slot: %d\n", i);
       #endif
-
-      // Maybe if all attempts are already used in this game, we reuse this spot?
     }
     // This is an empty spot
     else if (pGame->iToken == 0 && fEmptySlotFound == false)
@@ -316,6 +314,30 @@ int RevealWeight(int iToken)
   {
     pGame = psPersistentGames + usGameOffset;
     iRetVal = (int)(pGame->ucDiffWeight);
+  }
+  else
+  {
+    iRetVal = -1;
+  }
+
+  return iRetVal;
+}
+
+// Clean up a game slot after the game has ended
+int FreeSlot(int iToken)
+{
+  int iRetVal = -1;
+  unsigned short usGameOffset = 0;
+  unsigned short usEmptySlot = 0;
+  game_t* pGame = NULL;
+  game_t sEmptyGame = {0};
+  bool fGameFound = GameLookup(iToken, &usGameOffset, &usEmptySlot);
+
+  if (fGameFound == true)
+  {
+    pGame = psPersistentGames + usGameOffset;
+    *pGame = sEmptyGame;
+    iRetVal = 0;
   }
   else
   {
