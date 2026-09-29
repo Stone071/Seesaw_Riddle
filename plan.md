@@ -33,6 +33,11 @@ int RevealIslander(int iToken);
 int RevealWeight (int iToken);
 ```
 
+How do I get the host to persistently store the state of the games?
+
+* Could do a text file, a binary file, or mmap a file.
+* Could try SQLite of MySQL.
+
 ## The Client
 
 Actually, I think I should have the client come up with a token, since this will be easier in Python. I have no idea how I would handle it in C. If the backend cannot accept the token or already has a game under that token, it can refuse.
