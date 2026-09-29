@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript + HTML Seesaw Game GUI</title>
+    <!-- Declare the style inline -->
+    <style>
+        body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 1000px; }
+        button { background: #0070f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0051cb; }
+    </style>
+</head>
+
+<body>
+    <!-- Each position on the seesaw will be a button -->
+    <div class="card">
+        <h2>Seesaw Placements</h2>
+        <div style="display: flex">
+            <p>Left</p>
+            <button id="pos-0"> </button>
+            <button id="pos-1"> </button>
+            <button id="pos-2"> </button>
+            <button id="pos-3"> </button>
+            <button id="pos-4"> </button>
+            <button id="pos-5"> </button>
+            <button id="pos-middle"> </button>
+            <button id="pos-6"> </button>
+            <button id="pos-7"> </button>
+            <button id="pos-8"> </button>
+            <button id="pos-9"> </button>
+            <button id="pos-10"> </button>
+            <button id="pos-11"> </button>
+            <p>Right</p> 
+        </div>
+
+        <button id="test-btn">Test</button>
+        <button id="get-islander-btn">Discover Islander</button>
+        <button id="get-weight-btn">Discover Weight</button>
+    </div>
+
+    <!-- Link to the compiled JavaScript file -->
+    <script src="dist/app.js"></script>
+</body>
+</html>

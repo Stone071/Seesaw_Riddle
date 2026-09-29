@@ -26,8 +26,10 @@ gamehost.RevealPerson.argtypes = [ctypes.c_uint32]
 gamehost.RevealPerson.restype = ctypes.c_int
 gamehost.RevealWeight.argtypes = [ctypes.c_uint32]
 gamehost.RevealWeight.restype = ctypes.c_int
+gamehost.FreeSlot.argtypes = [ctypes.c_uint32]
+gamehost.FreeSlot.restype = ctypes.c_int
 
-for thisToken in range(1, 5):
+for thisToken in range(1, 1000):
   print(f"\nRUNNING GAME {thisToken}\n")
 
   result = gamehost.BeginGame(thisToken)
@@ -46,3 +48,6 @@ for thisToken in range(1, 5):
   print(f"THE ISLANDER WAS: {result}")
   result = gamehost.RevealWeight(thisToken)
   print(f"THEIR WEIGHT WAS: {result}")
+
+  result = gamehost.FreeSlot(thisToken)
+  print(f"Freeing game {thisToken}")
