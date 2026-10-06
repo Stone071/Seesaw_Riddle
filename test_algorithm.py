@@ -1,6 +1,7 @@
 # Figuring out how to operate the C command line game from Python Calls
 import ctypes
-import matplotlib
+import matplotlib.pyplot as PLT
+import numpy as NPY
 
 # GLOBALS
 GameHost = None
@@ -180,7 +181,7 @@ if __name__ == "__main__":
     GamesTracked: list = []
 
     InitializeLibrary()
-    for thisToken in range(1, 5):
+    for thisToken in range(1, 10000):
         print(f"\nRUNNING GAME {thisToken}\n")
 
         result = GameHost.BeginGame(thisToken)
@@ -215,3 +216,43 @@ if __name__ == "__main__":
         # Allow host to free game
         result = GameHost.FreeSlot(thisToken)
         print(f"FREEING GAME {thisToken}")
+
+    # Number Correct vs Incorrect
+    resultsTotals = NPY.zeros(3, dtype=int)
+
+    # Check the distribution of islanders being theIslander
+    theIslanderTotals = NPY.zeros(12, dtype=int)
+
+    # Tally the results after all the games have been executed
+    for gameResult in GamesTracked:
+        resultsTotals[0] += 1
+        if (gameResult.predictedIndividual == gameResult.uniqueIndividual):
+            resultsTotals[1] += 1
+        else:
+            resultsTotals[2] += 1
+
+        personNumber = ord(gameResult.uniqueIndividual) - ord("A")
+        theIslanderTotals[personNumber] += 1
+
+    resultCategories = ["Total Simulations", "Sucessful Guesses", "Failed Guesses"]
+    islanderNames = ["Ana",
+                    "Bruno",
+                    "Celia",
+                    "Doris",
+                    "Evinrude",
+                    "Franklin",
+                    "Gurt",
+                    "Harry",
+                    "Ingrid",
+                    "Jazeera",
+                    "Konklin",
+                    "Leonard",]
+    fig, ax = PLT.subplots(2)
+    ax[0].bar(resultCategories, resultsTotals)
+    ax[0].set_title("Simulation Results")
+    ax[0].set_ylabel("# Times")
+
+    ax[1].bar(islanderNames, theIslanderTotals)
+    ax[1].set_title("Distribution of being The Unique Islander")
+    ax[1].set_ylabel("# Times")
+    PLT.show()
