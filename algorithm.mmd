@@ -1,0 +1,26 @@
+flowchart TD
+
+    att1["`**Test 1**<br>ABCD vs EFGH`"] --"Balanced"--> att2B["`**Test 2**<br>IJ vs KA`"]
+    att2B --"Balanced"--> sol1((Imbalance is L))
+    att2B --"Imbalanced"-->att3BI["`**Test 3**<br>I vs J`"]
+    att3BI --"Balanced"--> solBIB((Imbalance is K))
+    att3BI --"Imbalanced"--> decBII{Did the imbalance move sides from test 2 to 3?}
+    decBII --"No"--> solBIIN((Imbalance is I))
+    decBII --"Yes"--> solBIIM((Imbalance is J))
+
+    att1 --"Imbalanced"--> att2I["`**Test 2**<br>AFC vs EBI`"]
+    att2I --"Balanced"--> att3IB["`**Test 3**<br>G vs H`"]
+    att3IB --"Balanced"--> solIBB((Imbalance is D))
+    att3IB --"Imbalanced"--> decIBI{Did the imbalance move sides from test 1 to 3?}
+    decIBI --"No"--> solIBIN((Imbalance is H))
+    decIBI --"Yes"--> solIBIM((Imbalance is G))
+    att2I --"Imbalanced"--> decII{Did the imbalance move sides from test 1 to 2?}
+    decII --"No"--> att3IIN["`**Test 3**<br>A vs C`"]
+    att3IIN --"Balanced"--> solIINB((Imbalance is E))
+    att3IIN --"Imbalanced"--> decIINI{Did the imbalance move sides from test 2 to 3?}
+    decIINI --"No"--> solIININ((Imbalance is A))
+    decIINI --"Yes"--> solIINIM((Imbalance is C))
+
+    decII --"Yes"--> att3IIM["`**Test 3**<br>F vs I`"]
+    att3IIM --"Balanced"--> solIIMB((Imbalance is B))
+    att3IIM --"Imbalanced"--> solIIMI((Imbalance is F))

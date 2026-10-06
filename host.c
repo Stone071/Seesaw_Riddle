@@ -167,8 +167,10 @@ int BeginGame(int iNewToken)
   {
     #ifdef DEBUG
     printf("Initializing host files...\n");
+    printf("Seeding random numbers...\n");
     #endif
     InitializeHost();
+    SeedRand();
   }
   else if (psPersistentGames == MAP_FAILED)
   {
@@ -354,7 +356,6 @@ static int InitializeGame(game_t* pGame, int iToken)
   printf("Initializing game with token %d\n", iToken);
   #endif
   pGame->iToken = iToken;
-  SeedRand();
   PopulateGame(pGame);
   return 0;
 }
