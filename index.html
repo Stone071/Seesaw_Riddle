@@ -8,8 +8,13 @@
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
         .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 1000px; }
-        button { background: #0070f3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        button { background: #0070f3; color: white; border: none; padding: 8px 8px; border-radius: 4px; cursor: pointer; margin: 3px}
         button:hover { background: #0051cb; }
+        .seesawButton { width: 100px; height: 40px; margin: 3px;}
+        .seesawMid { background: #050505; width: 40px; height: 40px; border-radius: 50%; padding: 0px 0px; flex-shrink: 0; }
+        .seesawMid:hover { background: #050505;}
+        .controlButton { background: #91a1bf; width: 150px;}
+        .controlButton:hover { background: #566072; }
     </style>
 </head>
 
@@ -18,26 +23,29 @@
     <div class="card">
         <h2>Seesaw Placements</h2>
         <div style="display: flex">
-            <p>Left</p>
-            <button id="pos-0"> </button>
-            <button id="pos-1"> </button>
-            <button id="pos-2"> </button>
-            <button id="pos-3"> </button>
-            <button id="pos-4"> </button>
-            <button id="pos-5"> </button>
-            <button id="pos-middle"> </button>
-            <button id="pos-6"> </button>
-            <button id="pos-7"> </button>
-            <button id="pos-8"> </button>
-            <button id="pos-9"> </button>
-            <button id="pos-10"> </button>
-            <button id="pos-11"> </button>
-            <p>Right</p> 
+            <button class="seesawButton" id="pos-0"> </button>
+            <button class="seesawButton" id="pos-1"> </button>
+            <button class="seesawButton" id="pos-2"> </button>
+            <button class="seesawButton" id="pos-3"> </button>
+            <button class="seesawButton" id="pos-4"> </button>
+            <button class="seesawButton" id="pos-5"> </button>
+            <button class="seesawMid" id="pos-middle"> </button>
+            <button class="seesawButton" id="pos-6"> </button>
+            <button class="seesawButton" id="pos-7"> </button>
+            <button class="seesawButton" id="pos-8"> </button>
+            <button class="seesawButton" id="pos-9"> </button>
+            <button class="seesawButton" id="pos-10"> </button>
+            <button class="seesawButton" id="pos-11"> </button>
         </div>
 
-        <button id="test-btn">Test</button>
-        <button id="get-islander-btn">Discover Islander</button>
-        <button id="get-weight-btn">Discover Weight</button>
+        <p id="outcomeParagraph"></p>
+
+        <div style="display: flex; justify-content: center;" >
+            <button class="controlButton" id="test-btn">Test</button>
+            <button class="controlButton" id="get-islander-btn">Discover Islander</button>
+            <!--<button class="controlButton" id="get-weight-btn">Discover Weight</button>-->
+            <button class="controlButton" id="clear-seesaw-btn">Clear Seesaw</button>
+        </div>
     </div>
 
     <div id="debug-frame">

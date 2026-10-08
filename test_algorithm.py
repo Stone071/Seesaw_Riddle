@@ -181,7 +181,7 @@ if __name__ == "__main__":
     GamesTracked: list = []
 
     InitializeLibrary()
-    for thisToken in range(1, 10000):
+    for thisToken in range(1, 10001):
         print(f"\nRUNNING GAME {thisToken}\n")
 
         result = GameHost.BeginGame(thisToken)
@@ -248,11 +248,18 @@ if __name__ == "__main__":
                     "Konklin",
                     "Leonard",]
     fig, ax = PLT.subplots(2)
-    ax[0].bar(resultCategories, resultsTotals)
-    ax[0].set_title("Simulation Results")
-    ax[0].set_ylabel("# Times")
+    t_fontsize = 20
+    l_fontsize = 16
+    sm_fontsize = 12
+    bars = ax[0].bar(resultCategories, resultsTotals)
+    ax[0].bar_label(bars, fontsize = sm_fontsize)
+    ax[0].set_title("Simulation Results", fontsize=t_fontsize)
+    ax[0].set_ylabel("# Times", fontsize = l_fontsize)
+    ax[0].set_xticks(resultCategories, labels=resultCategories, fontsize = l_fontsize)
 
-    ax[1].bar(islanderNames, theIslanderTotals)
-    ax[1].set_title("Distribution of being The Unique Islander")
-    ax[1].set_ylabel("# Times")
+    bars = ax[1].bar(islanderNames, theIslanderTotals)
+    ax[1].bar_label(bars, fontsize = sm_fontsize)
+    ax[1].set_title("Imbalanced Islander Distribution", fontsize=t_fontsize)
+    ax[1].set_ylabel("# Times", fontsize = l_fontsize)
+    ax[1].set_xticks(islanderNames, labels=islanderNames, fontsize = l_fontsize)
     PLT.show()

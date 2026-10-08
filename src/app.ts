@@ -26,7 +26,9 @@ const islanderList: Islander[] = [
 // Control buttons
 const testButton = document.getElementById("test-btn") as HTMLButtonElement;
 const discIslanderButton = document.getElementById("get-islander-btn") as HTMLButtonElement;
-const discWeightButton = document.getElementById("get-weight-btn") as HTMLButtonElement;
+//const discWeightButton = document.getElementById("get-weight-btn") as HTMLButtonElement;
+const clearSeesawButton = document.getElementById("clear-seesaw-btn") as HTMLButtonElement;
+
 // Create an array of all the positional buttons
 const posButtons: HTMLButtonElement[] = [];
 for (let i:number = 0; i < 12; i++)
@@ -64,7 +66,7 @@ for (let buttonNum:number = 0; buttonNum < 12; buttonNum++)
                 }
             }
             
-            //DebugDump();
+            DebugDump();
         });
     }
 }
@@ -94,4 +96,69 @@ function DebugDump() {
     }
 }
 
+
 // Attach event listeners for the control buttons
+clearSeesawButton.addEventListener("click", ClearSeesaw);
+
+// Clear seesaw function
+function ClearSeesaw() {
+    const lowerBound:number = 0;
+    const upperBound:number = 12;
+    for (let i:number = lowerBound; i < upperBound; i++)
+    {
+        posButtons[i].textContent = " ";
+        islanderList[i].position = 12;
+    }
+    ChangeSeesawColor(lowerBound, upperBound, "#0070f3")
+}
+
+discIslanderButton.addEventListener("click", SetIslanderDiscoveryText);
+testButton.addEventListener("click", TakeTurn);
+
+// Get the current seesaw layout from posButtons, have python query the library,
+// and post the return value in the outcome box
+let attemptsTaken: number = 0;
+function TakeTurn() {
+    attemptsTaken++;
+    // Take the turn a log the result
+    if (attemptsTaken == 3)
+    {
+        // Request the result
+        attemptsTaken = 0;
+    }
+    const outcome:number = 1;
+    let lowerBound:number = 0;
+    let upperBound:number = 0;
+    if (outcome == 0){
+        lowerBound = 0;
+        upperBound = 6;
+    }
+    else if (outcome == 1){
+        lowerBound = 6;
+        upperBound = 12;
+    }
+    SetOutcomeParagraph("The ___ side falls!");
+    // Change color of buttons
+    ChangeSeesawColor(lowerBound, upperBound, "#f31800")
+}
+
+// Change the color of the buttons
+function ChangeSeesawColor(lowerBound:number, upperBound:number, color:string) {
+    for (let i:number=lowerBound; i < upperBound; i++){
+        posButtons[i].style.backgroundColor = color;
+    }
+}
+
+// Paste the result stored when we took the third turn
+function SetIslanderDiscoveryText() {
+    const message:string = "The islander was __ and the weight was __";
+    SetOutcomeParagraph(message);
+}
+
+// Print to outcomeParagraph
+function SetOutcomeParagraph(msg:string) {
+    const textBox = document.getElementById("outcomeParagraph") as HTMLElement;
+    if (textBox != null) {
+        textBox.textContent = msg;
+    }
+}
