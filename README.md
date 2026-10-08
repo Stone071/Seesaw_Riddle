@@ -12,6 +12,10 @@ Once I had an algorithm I thought worked, I wrote this program to give myself a 
 
 ***NOTE: The balance computation does not take into account the distance of the people from the fulcrum of the seesaw. It is computed as if all people present on the seesaw are equidistant from the fulcrum. One of my original solutions was dependent on observing the speed with which the seesaw fell. I carefully asked an AI chatbot if the solution to the riddle depended on this, and was told the accepted solutions do not. Since the velocity of the seesaw does not matter, the exact position of each person does not either, only what side they are on.***
 
+## The Algorithm
+
+![Seesaw Island Riddle Algorithm](docs/algorithm.png)
+
 ## Build Dependencies
 
 - gcc
